@@ -14,18 +14,19 @@ pipeline {
             }
         }
         stage('Initializing Terraform') {
-            environment {
-        // Create a separate 'Secret Text' credential in Jenkins for your token
-        AWS_SESSION_TOKEN = credentials('aws-session-token-id')
-    }
     steps {
-        withAWS(credentials: 'your-access-key-id', region: 'us-east-1') {
-            dir('EKS-TF') {
-                sh 'terraform init'
+        // This line pulls the Secret Text (token) and puts it in an environment variable
+        withCredentials([string(credentialsId: 'aws-token', variable: 'AWS_SESSION_TOKEN')]) {
+            
+            // This line pulls the Access/Secret keys and sets up the AWS context
+            withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+                dir('EKS-TF') {
+                    sh 'terraform init'
+                }
             }
         }
     }
-        }
+}
         stage('Validate Terraform Code') {
             steps {
                 withAWS(credentials: 'aws-key', region: 'us-east-1') {
