@@ -29,7 +29,7 @@ pipeline {
 }
         stage('Validate Terraform Code') {
             steps {
-                withAWS(credentials: 'aws-key', region: 'us-east-1') {
+                withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                 dir('EKS-TF') {
                     script {
                         sh 'terraform validate'
@@ -40,7 +40,7 @@ pipeline {
         }
         stage('Terraform Plan') {
             steps {
-                withAWS(credentials: 'aws-key', region: 'us-east-1') {
+                withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                 dir('EKS-TF') {
                     script {
                         sh "terraform plan -var-file=${params.'File-Name'}"
@@ -51,7 +51,7 @@ pipeline {
         }
         stage('Terraform Action') {
             steps {
-                withAWS(credentials: 'aws-key', region: 'us-east-1') { 
+                withAWS(credentials: 'aws-creds', region: 'us-east-1') { 
                 script {
                     echo "${params.'Terraform-Action'}"
                     dir('EKS-TF') {
