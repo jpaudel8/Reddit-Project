@@ -14,15 +14,17 @@ pipeline {
             }
         }
         stage('Initializing Terraform') {
-            steps {
-                withAWS(credentials: 'aws-key', region: 'us-east-1') {
-                dir('EKS-TF') {
-                    script {
-                        sh 'terraform init'
-                    }
-                }
-                }
+            environment {
+        // Create a separate 'Secret Text' credential in Jenkins for your token
+        AWS_SESSION_TOKEN = credentials('aws-session-token-id')
+    }
+    steps {
+        withAWS(credentials: 'your-access-key-id', region: 'us-east-1') {
+            dir('EKS-TF') {
+                sh 'terraform init'
             }
+        }
+    }
         }
         stage('Validate Terraform Code') {
             steps {

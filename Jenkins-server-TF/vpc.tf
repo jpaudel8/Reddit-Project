@@ -1,17 +1,11 @@
 resource "aws_vpc" "vpc" {
   cidr_block = "10.0.0.0/16"
-
-  tags = {
-    Name = var.vpc-name
-  }
+  tags = { Name = var.vpc-name }
 }
 
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
-
-  tags = {
-    Name = var.igw-name
-  }
+  tags = { Name = var.igw-name }
 }
 
 resource "aws_subnet" "public-subnet" {
@@ -19,10 +13,7 @@ resource "aws_subnet" "public-subnet" {
   cidr_block              = "10.0.1.0/24"
   availability_zone       = "us-east-1a"
   map_public_ip_on_launch = true
-
-  tags = {
-    Name = var.subnet-name
-  }
+  tags = { Name = var.subnet-name }
 }
 
 resource "aws_route_table" "rt" {
@@ -31,10 +22,7 @@ resource "aws_route_table" "rt" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
-
-  tags = {
-    Name = var.rt-name
-  }
+  tags = { Name = var.rt-name }
 }
 
 resource "aws_route_table_association" "rt-association" {
@@ -46,19 +34,17 @@ resource "aws_security_group" "security-group" {
   vpc_id      = aws_vpc.vpc.id
   description = "Allowing Jenkins, Sonarqube, SSH Access"
 
-  ingress = [
-    for port in [22, 8080, 9000] : {
-      description      = "TLS from VPC"
-      from_port        = port
-      to_port          = port
-      protocol         = "tcp"
-      ipv6_cidr_blocks = ["::/0"]
-      self             = false
-      prefix_list_ids  = []
-      security_groups  = []
-      cidr_blocks      = ["0.0.0.0/0"]
+  # Standard way to loop through ports in Terraform
+  dynamic "ingress" {
+    for_each = [22, 8080, 9000]
+    content {
+      description = "Access for port ${ingress.value}"
+      from_port   = ingress.value
+      to_port     = ingress.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
     }
-  ]
+  }
 
   egress {
     from_port   = 0
@@ -67,7 +53,5 @@ resource "aws_security_group" "security-group" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name = var.sg-name
-  }
+  tags = { Name = var.sg-name }
 }
