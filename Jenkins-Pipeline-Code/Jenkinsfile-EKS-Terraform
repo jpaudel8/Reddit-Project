@@ -29,6 +29,7 @@ pipeline {
 }
         stage('Validate Terraform Code') {
             steps {
+                withCredentials([string(credentialsId: 'aws-token', variable: 'AWS_SESSION_TOKEN')]) {
                 withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                 dir('EKS-TF') {
                     script {
@@ -36,10 +37,12 @@ pipeline {
                     }
                 }
                 }
+                }
             }
         }
         stage('Terraform Plan') {
             steps {
+                withCredentials([string(credentialsId: 'aws-token', variable: 'AWS_SESSION_TOKEN')]) {
                 withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                 dir('EKS-TF') {
                     script {
@@ -47,10 +50,12 @@ pipeline {
                     }
                 }
                 }
+                }
             }
         }
         stage('Terraform Action') {
             steps {
+                withCredentials([string(credentialsId: 'aws-token', variable: 'AWS_SESSION_TOKEN')]) {
                 withAWS(credentials: 'aws-creds', region: 'us-east-1') { 
                 script {
                     echo "${params.'Terraform-Action'}"
@@ -65,6 +70,7 @@ pipeline {
                             }
                         }
                     }
+                }
                 }
                 }
             }
