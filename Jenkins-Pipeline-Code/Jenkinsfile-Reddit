@@ -15,7 +15,7 @@ pipeline{
         }
         stage('Checkout from Git'){
             steps{
-                git branch: 'main', url: 'https://github.com/uniquesreedhar/Reddit-Project.git'
+                git branch: 'main', url: 'https://github.com/subashsharma-cell/Reddit-Project.git'
             }
         }
         stage('Install Dependencies') {
@@ -54,28 +54,28 @@ pipeline{
                 script{
                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){
                        sh "docker build -t reddit ."
-                       sh "docker tag reddit sreedhar8897/reddit:${BUILD_NUMBER} "
-                       sh "docker push sreedhar8897/reddit:${BUILD_NUMBER} "
+                       sh "docker tag reddit subash26288/reddit:${BUILD_NUMBER} "
+                       sh "docker push subash26288/reddit:${BUILD_NUMBER} "
                     }
                 }
             }
         }
         stage("TRIVY"){
             steps{
-                sh "trivy image sreedhar8897/reddit:latest > trivy.txt"
+                sh "trivy image subash26288/reddit:latest > trivy.txt"
             }
         }
         stage('Update Deployment file') {
             environment {
                 GIT_REPO_NAME = "Reddit-Project"
-                GIT_USER_NAME = "uniquesreedhar"
+                GIT_USER_NAME = "subashsharma-cell"
             }
             steps {
                 dir('K8s'){
                     withCredentials([string(credentialsId: 'githubcred', variable: 'GITHUB_TOKEN')]) {
                         sh '''
-                            git config user.email "madithatisreedhar123@gmail.com"
-                            git config user.name "uniquesreedhar"
+                            git config user.email "subash.sharma@islingtoncollege.edu.np"
+                            git config user.name "subashsharma-cell"
                             BUILD_NUMBER=${BUILD_NUMBER}
                             echo $BUILD_NUMBER
                             imageTag=$(grep -oP '(?<=reddit:)[^ ]+' deployment.yml)
