@@ -13,3 +13,6 @@ aws ec2 describe-instances \
     --filters "Name=instance-state-name,Values=running" \
     --query 'Reservations[*].Instances[*].{Name: Tags[?Key==`Name`].Value | [0], PublicIP: PublicIpAddress}' \
     --output table
+
+
+    #newline
