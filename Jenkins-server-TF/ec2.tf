@@ -12,8 +12,12 @@ resource "aws_instance" "ec2" {
     volume_size = 30
   }
 
-  user_data = templatefile("./tools-install.sh", {})
+  #user_data = templatefile("./tools-install.sh", {})
 
+  user_data = templatefile("${path.module}/tools-install.sh", {
+    LOG_FILE = "/var/log/user-data-install.log"
+  })
+  
   tags = {
     Name = var.instance-name
   }
