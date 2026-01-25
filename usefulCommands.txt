@@ -1,0 +1,15 @@
+aws dynamodb create-table \
+  --table-name Lock-Files \
+  --attribute-definitions AttributeName=LockID,AttributeType=S \
+  --key-schema AttributeName=LockID,KeyType=HASH \
+  --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
+  --region us-east-1
+
+aws s3api create-bucket --bucket newjagpoudelbucket --region us-east-1
+
+terraform apply -var-file=variables.tfvars --auto-approve
+
+aws ec2 describe-instances \
+    --filters "Name=instance-state-name,Values=running" \
+    --query 'Reservations[*].Instances[*].{Name: Tags[?Key==`Name`].Value | [0], PublicIP: PublicIpAddress}' \
+    --output table
