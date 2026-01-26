@@ -22,3 +22,6 @@ aws ec2 describe-instances \
 Jagpaudel12345@
 squ_39fbe71b18ef86e3832562e2d039610b2c9acc63
 042879f5-30a8-406f-b1ac-01cd48e07792 //nvd api key
+
+
+#test
