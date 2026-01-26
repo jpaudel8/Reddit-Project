@@ -34,6 +34,9 @@ add username and password(for docker):
     password: personal acces token
     username
 
+add secret text from nva
+id: nvd-api-key
+
 Create secrete key from sonarqube
 from jenkins systme conif , add that server using sonarqube server target
 add system tools ( nodejs, jdk, Dependency check(github install, auto, name=DP-Check))
