@@ -49,7 +49,7 @@ config: pull from scm
 github main branch
 jenkins fies script target (for eg. Jenkins-Pipeline-Code/Jenkinsfile-EKS-Terraform)
 
-
+install trivy manually
 
 BUild now
 
