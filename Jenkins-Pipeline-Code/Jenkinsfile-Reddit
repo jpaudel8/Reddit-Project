@@ -83,7 +83,8 @@ stage('OWASP FS SCAN') {
         stage("TRIVY"){
             steps{
                 // sh "trivy image jpaudel8/reddit:latest > trivy.txt"
-                sh "trivy image jpaudel8/reddit:latest > trivy.txt"
+                // sh "trivy image jpaudel8/reddit:latest > trivy.txt"
+                sh "trivy image --scanners vuln jpaudel8/reddit:latest > trivy.txt"
             }
         }
         stage('Update Deployment file') {
