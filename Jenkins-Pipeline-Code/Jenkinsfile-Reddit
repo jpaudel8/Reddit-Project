@@ -87,29 +87,62 @@ stage('OWASP FS SCAN') {
                 sh "trivy image --scanners vuln jpaudel8/reddit:latest > trivy.txt"
             }
         }
-        stage('Update Deployment file') {
-            environment {
-                GIT_REPO_NAME = "Reddit-Project"
-                GIT_USER_NAME = "jpaudel8"
-            }
-            steps {
-                dir('K8s'){
-                    withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-                        sh '''
-                            git config user.email "jpaudel8@gmail.com"
-                            git config user.name "jpaudel8"
-                            BUILD_NUMBER=${BUILD_NUMBER}
-                            echo $BUILD_NUMBER
-                            imageTag=$(grep -oP '(?<=reddit:)[^ ]+' deployment.yml)
-                            echo $imageTag
-                            sed -i "s/reddit:${imageTag}/reddit:${BUILD_NUMBER}/" deployment.yml
-                            git add deployment.yml
-                            git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
-                            git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-                        '''
-                    }
-                }
+//         stage('Update Deployment file') {
+//             environment {
+//                 GIT_REPO_NAME = "Reddit-Project"
+//                 GIT_USER_NAME = "jpaudel8"
+//             }
+//             steps {
+//                 dir('K8s'){
+//                     // withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+
+// withCredentials([usernamePassword(credentialsId: 'github', usernameVariable: 'GIT_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+// //     sh "git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main"
+// // }
+//                         sh '''
+//                             git config user.email "jpaudel8@gmail.com"
+//                             git config user.name "jpaudel8"
+//                             BUILD_NUMBER=${BUILD_NUMBER}
+//                             echo $BUILD_NUMBER
+//                             imageTag=$(grep -oP '(?<=reddit:)[^ ]+' deployment.yml)
+//                             echo $imageTag
+//                             sed -i "s/reddit:${imageTag}/reddit:${BUILD_NUMBER}/" deployment.yml
+//                             git add deployment.yml
+//                             git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
+//                             git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+//                         '''
+//                     }
+//                 }
+//             }
+//         }
+
+stage('Update Deployment file') {
+    environment {
+        GIT_REPO_NAME = "Reddit-Project"
+        GIT_USER_NAME = "jpaudel8"
+    }
+    steps {
+        dir('K8s') {
+            withCredentials([usernamePassword(credentialsId: 'github', usernameVariable: 'GIT_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                sh '''
+                    git config user.email "jpaudel8@gmail.com"
+                    git config user.name "jpaudel8"
+                    
+                    # Search for the current tag and update it to the new build number
+                    imageTag=$(grep -oP '(?<=reddit:)[^ ]+' deployment.yml)
+                    echo "Old tag found: ${imageTag}"
+                    
+                    sed -i "s/reddit:${imageTag}/reddit:${BUILD_NUMBER}/" deployment.yml
+                    
+                    git add deployment.yml
+                    git commit -m "Update deployment Image to version ${BUILD_NUMBER}"
+                    
+                    # Push using the token for authentication
+                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+                '''
             }
         }
+    }
+}
     }
 }
