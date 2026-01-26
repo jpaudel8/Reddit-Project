@@ -73,13 +73,16 @@ stage('OWASP FS SCAN') {
                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){
                        sh "docker build -t reddit ."
                        sh "docker tag reddit jpaudel8/reddit:${BUILD_NUMBER} "
+                       sh "docker tag reddit jpaudel8/reddit:latest"
                        sh "docker push jpaudel8/reddit:${BUILD_NUMBER} "
+                       sh "docker push jpaudel8/reddit:latest"
                     }
                 }
             }
         }
         stage("TRIVY"){
             steps{
+                // sh "trivy image jpaudel8/reddit:latest > trivy.txt"
                 sh "trivy image jpaudel8/reddit:latest > trivy.txt"
             }
         }
