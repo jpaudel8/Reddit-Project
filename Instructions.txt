@@ -1,0 +1,52 @@
+aws configure
+cd Jenkins-server-TF/
+terraform init
+terraform apply -var-file=variables.tfvars --auto-approve
+
+download labuser pem file
+ssh connect ec2
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+Navigate to Manage Jenkins → Plugins → Available Plugins and install the following plugins without restarting:
+    Eclipse Temurin Installer
+    SonarQube Scanner
+    NodeJs Plugin
+    Docker Plugins (Docker, Docker commons, Docker pipeline, Docker API, Docker Build step)
+    Owasp Dependency Check
+    Terraform
+    AWS Credentials
+    Pipeline: AWS Steps
+    Prometheus Metrics Plugin
+
+
+add aws Credentials in jenkins
+    id: aws-creds
+    val: access token id, secret access token
+add secret text
+    val: session token (long)
+    id: aws-token
+
+add username and password(for github):
+    id: github
+    password: token(classic)
+    username
+add username and password(for docker):
+    id: docker
+    password: personal acces token
+    username
+
+Create secrete key from sonarqube
+from jenkins systme conif , add that server using sonarqube server target
+add system tools ( nodejs, jdk, Dependency check(github install, auto, name=DP-Check))
+Add sonaqube->administration->webhook to interrfupt jenkins. 
+name: jenkins
+url : <jenkins-server-url>/sonarqube-webhook/
+
+jenkins-> create job-> pipeline 
+config: pull from scm
+github main branch
+jenkins fies script target (for eg. Jenkins-Pipeline-Code/Jenkinsfile-EKS-Terraform)
+
+
+
+BUild now
+

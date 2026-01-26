@@ -15,7 +15,7 @@ pipeline{
         }
         stage('Checkout from Git'){
             steps{
-                git branch: 'main', url: 'https://github.com/subashsharma-cell/Reddit-Project.git'
+                git branch: 'main', url: 'https://github.com/jpaudel8/Reddit-Project.git'
             }
         }
         stage('Install Dependencies') {
@@ -38,12 +38,30 @@ pipeline{
                 }
             }
         }
-        stage('OWASP FS SCAN') {
-            steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-            }
+//         stage('OWASP FS SCAN') {
+//             steps {
+//                 dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+//                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+//             }
+//         }
+
+// stage('OWASP FS SCAN') {
+//     steps {
+//         withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
+//             dependencyCheck additionalArguments: "--nvdApiKey ${NVD_API_KEY}", odcInstallation: 'DP-Check'
+//         }
+//     }
+// }
+stage('OWASP FS SCAN') {
+    steps {
+        // Use the ID you created in Jenkins (e.g., 'nvd-api-key')
+        withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
+            dependencyCheck additionalArguments: "--scan ./ --disableYarnAudit --disableNodeAudit --nvdApiKey ${NVD_API_KEY}", odcInstallation: 'DP-Check'
         }
+        dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+    }
+}
+
         stage('TRIVY FS SCAN') {
             steps {
                 sh "trivy fs . > trivyfs.txt"
@@ -54,28 +72,28 @@ pipeline{
                 script{
                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){
                        sh "docker build -t reddit ."
-                       sh "docker tag reddit subash26288/reddit:${BUILD_NUMBER} "
-                       sh "docker push subash26288/reddit:${BUILD_NUMBER} "
+                       sh "docker tag reddit jpaudel8/reddit:${BUILD_NUMBER} "
+                       sh "docker push jpaudel8/reddit:${BUILD_NUMBER} "
                     }
                 }
             }
         }
         stage("TRIVY"){
             steps{
-                sh "trivy image subash26288/reddit:latest > trivy.txt"
+                sh "trivy image jpaudel/reddit:latest > trivy.txt"
             }
         }
         stage('Update Deployment file') {
             environment {
                 GIT_REPO_NAME = "Reddit-Project"
-                GIT_USER_NAME = "subashsharma-cell"
+                GIT_USER_NAME = "jpaudel8"
             }
             steps {
                 dir('K8s'){
-                    withCredentials([string(credentialsId: 'githubcred', variable: 'GITHUB_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                         sh '''
-                            git config user.email "subash.sharma@islingtoncollege.edu.np"
-                            git config user.name "subashsharma-cell"
+                            git config user.email "jpaudel8@gmail.com"
+                            git config user.name "jpaudel8"
                             BUILD_NUMBER=${BUILD_NUMBER}
                             echo $BUILD_NUMBER
                             imageTag=$(grep -oP '(?<=reddit:)[^ ]+' deployment.yml)
